@@ -9,11 +9,11 @@ class Game:
         self.mines_count = 0
         self.game_won = False
         self.opened_cells = 0
-        w, h = self.board.get_dimensions()
-        self.cells_count = w * h
+        h, w = self.board.get_dimensions()
+        self.cells_count = h * w
 
     def open_cell(self, x, y):
-        w, h = self.board.get_dimensions()
+        h, w = self.board.get_dimensions()
         if 0 <= x < w and 0 <= y < h:
             # print('opening cell: (' + str(x) + ', ' + str(y)+')')
 

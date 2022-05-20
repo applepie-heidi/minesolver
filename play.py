@@ -1,41 +1,31 @@
 from keras.models import load_model
 
-from brain_neww import Brain
+from brain import Brain
 from game import Game
 
 
-def test_computer():
-    model_name = input("What is the name of the model/model code? ")
-    split = model_name.split("_")
-    difficulty = split[0]
-    name = split[1]
-    model = load_model("models/" + model_name)
-    brain = Brain(model, difficulty, name)
-    games = int(input("How many games to test on? "))
-    brain.test(games)
-
-
 def play_as_a_human():
-    difficulty = input("Choose your poison: ")
-    while difficulty is not 'beginner' or difficulty is not 'intermediate' or difficulty is not 'expert':
-        difficulty = input("I said choose your poison (beginner, intermediate, expert): ")
+    print("Welcome to Minesweeper, fucker.")
 
-    game = Game(difficulty)
-    print("There are " + str(game.board.number_of_mines) + " total mines.")
+    game = Game('beginner')
+    message = "Okay, 'Bitch', let's play."
     while not game.game_over:
+        print(message)
+        print("There are " + str(game.board.number_of_mines) + " total mines.")
         print(game.board)
+        message = "You're still alive, somehow."
         coordinates = input("Enter coordinates: ")
         coordinates = [int(x) for x in coordinates.split(',')]
         if 0 < coordinates[0] <= game.board.board_height and 0 < coordinates[1] <= game.board.board_width:
             coordinates = (coordinates[0] - 1, coordinates[1] - 1)
             game.open_cell(coordinates[0], coordinates[1])
         else:
-            print(f"out of bounds, choose ([1, {game.board.board_height}],[1, {game.board.board_width})")
+            print("out of bounds")
     if game.game_won:
         print(game.board)
-        print("I'm on top of the world, HEY!!.")
+        print("I guess sometimes it's better to be lucky than good. Congratulations.")
     else:
-        print("It's over isn't it? Isn't it? Isn't it oveeeeer???.")
+        print("Game over idiot.")
 
 
 def play_as_computer():
@@ -52,4 +42,4 @@ def play_as_computer():
 
 
 if __name__ == '__main__':
-    test_computer()
+    play_as_computer()

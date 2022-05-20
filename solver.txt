@@ -1,0 +1,134 @@
+layers = 11
+sessions = 100_000
+samples = 1000
+epochs = 10
+
+
+== Session: 2807
+Total games: 164368
+Total victories: 121620
+Session games: 57
+Session mean clicks: 17.526315789473685
+Session mean victories: 0.7894736842105263
+Session mean cells revealed: 49.68421052631579
+Session time: 28.455901861190796 seconds
+== Session: 2808
+Total games: 164423
+Total victories: 121663
+Session games: 55
+Session mean clicks: 17.963636363636365
+Session mean victories: 0.7818181818181819
+Session mean cells revealed: 51.945454545454545
+Session time: 28.704829692840576 seconds
+== Session: 2809
+Total games: 164481
+Total victories: 121709
+Session games: 58
+Session mean clicks: 17.120689655172413
+Session mean victories: 0.7931034482758621
+Session mean cells revealed: 51.10344827586207
+Session time: 28.981422901153564 seconds
+== Session: 2810
+Total games: 164539
+Total victories: 121755
+Session games: 58
+Session mean clicks: 17.189655172413794
+Session mean victories: 0.7931034482758621
+Session mean cells revealed: 51.56896551724138
+Session time: 28.720772743225098 seconds
+== Session: 2811
+Total games: 164592
+Total victories: 121800
+Session games: 53
+Session mean clicks: 18.566037735849058
+Session mean victories: 0.8490566037735849
+Session mean cells revealed: 53.113207547169814
+Session time: 28.658007621765137 seconds
+== Session: 2812
+Total games: 164649
+Total victories: 121835
+Session games: 57
+Session mean clicks: 17.17543859649123
+Session mean victories: 0.6140350877192983
+Session mean cells revealed: 49.24561403508772
+Session time: 28.79607105255127 seconds
+== Session: 2813
+Total games: 164709
+Total victories: 121882
+Session games: 60
+Session mean clicks: 16.5
+Session mean victories: 0.7833333333333333
+Session mean cells revealed: 50.35
+Session time: 28.70865249633789 seconds
+== Session: 2814
+Total games: 164762
+Total victories: 121915
+Session games: 53
+Session mean clicks: 18.62264150943396
+Session mean victories: 0.6226415094339622
+Session mean cells revealed: 50.24528301886792
+Session time: 28.69374442100525 seconds
+== Session: 2815
+Total games: 164816
+Total victories: 121961
+Session games: 54
+Session mean clicks: 18.333333333333332
+Session mean victories: 0.8518518518518519
+Session mean cells revealed: 51.611111111111114
+Session time: 28.78690528869629 seconds
+== Session: 2816
+Total games: 164874
+Total victories: 122004
+Session games: 58
+Session mean clicks: 17.24137931034483
+Session mean victories: 0.7413793103448276
+Session mean cells revealed: 49.62068965517241
+Session time: 28.529470920562744 seconds
+== Session: 2817
+Total games: 164927
+Total victories: 122048
+Session games: 53
+Session mean clicks: 18.81132075471698
+Session mean victories: 0.8301886792452831
+Session mean cells revealed: 53.22641509433962
+Session time: 28.66990613937378 seconds
+== Session: 2818
+Total games: 164985
+Total victories: 122096
+Session games: 58
+Session mean clicks: 17.20689655172414
+Session mean victories: 0.8275862068965517
+Session mean cells revealed: 51.87931034482759
+Session time: 28.755417585372925 seconds
+== Session: 2819
+Total games: 165040
+Total victories: 122136
+Session games: 55
+Session mean clicks: 17.945454545454545
+Session mean victories: 0.7272727272727273
+Session mean cells revealed: 50.836363636363636
+Session time: 28.5507709980011 seconds
+== Session: 2820
+Total games: 165094
+Total victories: 122178
+Session games: 54
+Session mean clicks: 18.425925925925927
+Session mean victories: 0.7777777777777778
+Session mean cells revealed: 52.44444444444444
+Session time: 28.71136736869812 seconds
+== Session: 2821
+Total games: 165153
+Total victories: 122225
+Session games: 59
+Session mean clicks: 16.8135593220339
+Session mean victories: 0.7966101694915254
+Session mean cells revealed: 52.152542372881356
+Session time: 28.85802674293518 seconds
+== Session: 2822
+Total games: 165206
+Total victories: 122267
+Session games: 53
+Session mean clicks: 18.641509433962263
+Session mean victories: 0.7924528301886793
+Session mean cells revealed: 49.943396226415096
+Session time: 28.629775524139404 seconds

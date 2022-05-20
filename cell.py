@@ -10,3 +10,5 @@ class Cell:
 
     def __repr__(self):
         return f'Cell({"*" if self.mine else "-"}/{self.value}, rvl={self.revealed}, mrk={self.marked})'
+
+    #def

@@ -1,34 +1,34 @@
 from random import randint
 
 from cell import Cell
+from difficulty import Difficulty
 
 
 class Board:
-    def __init__(self, difficulty):
+    def __init__(self, difficulty: Difficulty):
         self.board = None
-        self.board_width = None
-        self.board_height = None
-        self.number_of_mines = None
+        self.difficulty = difficulty
+        self.create_board()
 
-        if difficulty == 'beginner':
-            self.create_board(8, 8, 10)
-        elif difficulty == 'intermediate':
-            self.create_board(16, 16, 40)
-        elif difficulty == 'expert':
-            self.create_board(30, 16, 99)
-        else:
-            raise Exception
+    @property
+    def board_width(self):
+        return self.difficulty.dim2_width
 
-    def create_board(self, board_width, board_height, number_of_mines):
+    @property
+    def board_height(self):
+        return self.difficulty.dim1_height
+
+    @property
+    def number_of_mines(self):
+        return self.difficulty.number_of_mines
+
+    def create_board(self):
         # print('creating board')
-        self.board_width = board_width
-        self.board_height = board_height
-        self.number_of_mines = number_of_mines
         self.board = []  # np.zeroes((board_width, board_height), int)
-        for y in range(board_height):
-            row = [None] * board_width
+        for y in range(self.board_height):
+            row = [None] * self.board_width
             self.board.append(row)
-            for x in range(board_width):
+            for x in range(self.board_width):
                 # row.append(Cell(x, y))
                 self.set_cell(x, y, Cell(x, y))
 
@@ -44,11 +44,11 @@ class Board:
 
         while mines_counter < self.number_of_mines:
             random_number = randint(0, self.board_height * self.board_width - 1)
-            row_count = random_number // self.board_width
-            column_count = random_number % self.board_width
+            x_mine = random_number % self.board_width
+            y_mine = random_number // self.board_width
             # print(f'placing mine {mines_counter} at {column_count}x{row_count}')
 
-            cell = self.get_cell(row_count, column_count)
+            cell = self.get_cell(x_mine, y_mine)
 
             if cell is not empty_cell:
                 i = 0
@@ -162,6 +162,20 @@ class Board:
 
         return opened
 
+    def get_hidden_cells_near_revealed_cells(self):
+        result = set()
+        for y in range(self.board_height):
+            for x in range(self.board_width):
+                cell = self.get_cell(x, y)
+                if cell.revealed and cell.value != 0 and not cell.mine:
+                    neighbours = self.get_neighbours(cell)
+                    hidden_neighbours = []
+                    for n in neighbours:
+                        if not n.revealed:
+                            hidden_neighbours.append(n)
+                    result.update(neighbours)
+        return result
+
     def toggle_mark(self, x, y):
         cell = self.get_cell(x, y)
         if not cell.revealed:
@@ -174,7 +188,7 @@ class Board:
         return self.board[y][x]
 
     def get_dimensions(self):
-        return self.board_width, self.board_height
+        return self.board_height, self.board_width
 
     def get_number_of_mines(self):
         return self.number_of_mines
