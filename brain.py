@@ -104,7 +104,8 @@ class Brain:
             print(f"Session time: {t} seconds")
 
             self.log_file.write(
-                f'{i},{mean_loss},{val_loss},{total_games_count},{total_victories},{games_count},{mean_clicks},{mean_victories},{mean_revealed},{t}\n')
+                f'{i},{mean_loss},{val_loss},{total_games_count},{total_victories},{games_count},'
+                f'{mean_clicks},{mean_victories},{mean_revealed},{t}\n')
             self.log_file.flush()
 
             if (i + 1) % 10 == 0:
@@ -122,16 +123,14 @@ class Brain:
         for by in range(board.board_height):
             for bx in range(board.board_width):
                 cell = board.get_cell(bx, by)
-                if cell.mine:
-                    truth[by, bx, 0] = 1
+                truth[by, bx, 0] = int(cell.mine)
         return truth
 
     @staticmethod
     def get_truth_from_neighbours(board, model_predicted_out, x, y):
-        truth = model_predicted_out
+        truth = model_predicted_out[0]
         for cell in board.get_hidden_cells_near_revealed_cells():
-            if cell.mine:
-                truth[cell.y, cell.x, 0] = 1
+            truth[cell.y, cell.x, 0] = int(cell.mine)
         return truth
 
     def get_channels(self, board):
