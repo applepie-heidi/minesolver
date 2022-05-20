@@ -26,10 +26,10 @@ class Brain:
         self.name = name
 
     def learn(self, sessions, samples, epochs):
-        dim1, dim2 = self.dimensions()
-        x_data = np.zeros((samples, dim1, dim2, 11))
-        x2_data = np.zeros((samples, dim1, dim2, 1))
-        y_data = np.zeros((samples, dim1, dim2, 1))
+        width, height = self.dimensions()
+        x_data = np.zeros((samples, width, height, 11))
+        x2_data = np.zeros((samples, width, height, 1))
+        y_data = np.zeros((samples, width, height, 1))
 
         total_games_count = 0
         total_victories = 0
@@ -43,7 +43,7 @@ class Brain:
             games_count = 0
             while samples_index < samples:
                 game = Game(self.difficulty)
-                game.open_cell(randint(0, dim1 - 1), randint(0, dim2 - 1))
+                game.open_cell(randint(0, width - 1), randint(0, height - 1))
 
                 while not game.game_over and samples_index != samples:
                     x = self.get_channels(game.board)
@@ -54,15 +54,15 @@ class Brain:
                     out = self.model.predict([np.array([x]), np.array([x2])])
                     mine_prob = out.flatten() + get_layer(x, 0).flatten()
                     selected = np.argmin(mine_prob)
-                    selected1 = selected // dim2
-                    selected2 = selected % dim2
+                    sel_x = selected % width
+                    sel_y = selected // width
 
-                    game.open_cell(selected1, selected2)
+                    game.open_cell(sel_x, sel_y)
                     clicks += 1
 
                     truth = out[0]
-                    truth[selected1, selected2, 0] = int(
-                        game.board.get_cell(selected1, selected2).mine)  # mines[selected1, selected2]
+                    truth[sel_x, sel_y, 0] = int(
+                        game.board.get_cell(sel_x, sel_y).mine)  # mines[sel_x, sel_y]
                     y_data[samples_index] = truth
 
                     samples_index += 1
@@ -111,12 +111,12 @@ class Brain:
         elif self.difficulty == 'intermediate':
             return 16, 16
         elif self.difficulty == 'expert':
-            return 16, 30
+            return 30, 16
         else:
             raise Exception
 
     def test(self, games_count):
-        dim1, dim2 = self.dimensions()
+        width, height = self.dimensions()
         total_victories = 0
         revealed_cells = 0
         clicks = 0
@@ -124,7 +124,7 @@ class Brain:
             if i%10 == 0:
                 print(f'Playing {i}...')
             game = Game(self.difficulty)
-            game.open_cell(randint(0, dim1 - 1), randint(0, dim2 - 1))
+            game.open_cell(randint(0, width - 1), randint(0, height - 1))
 
             while not game.game_over:
                 x = self.get_channels(game.board)
@@ -133,10 +133,10 @@ class Brain:
                 out = self.model.predict([np.array([x]), np.array([x2])])
                 mine_prob = out.flatten() + get_layer(x, 0).flatten()
                 selected = np.argmin(mine_prob)
-                selected1 = selected // dim2
-                selected2 = selected % dim2
+                sel_x = selected % width
+                sel_y = selected // width
 
-                game.open_cell(selected1, selected2)
+                game.open_cell(sel_x, sel_y)
                 clicks += 1
             revealed_cells += game.opened_cells
             if game.game_won:
@@ -154,21 +154,21 @@ class Brain:
         print(f'Session mean cells revealed: {mean_revealed}')
 
     def play(self):
-        dim1, dim2 = self.dimensions()
+        width, height = self.dimensions()
         game = Game(self.difficulty)
 
         print('Beginning play')
         print('Game board:')
         print(game.board)
 
-        selected1 = randint(0, dim1 - 1)
-        selected2 = randint(0, dim2 - 1)
-        game.open_cell(selected1, selected2)
+        sel_x = randint(0, width - 1)
+        sel_y = randint(0, height - 1)
+        game.open_cell(sel_x, sel_y)
         time.sleep(0.5)
 
         i = 0
         while not game.game_over:
-            print(f'Open cell: {i}:({selected1 + 1}, {selected2 + 1})')
+            print(f'Open cell: {i}:({sel_x + 1}, {sel_y + 1})')
             if 'out' in locals():
                 print(f'Confidence: {np.round(100 * (1 - np.amin(out[0][0] + x[0])), 2)}%')
             print('Game board:')
@@ -180,15 +180,15 @@ class Brain:
             out = self.model.predict([np.array([x]), np.array([x2])])
             mine_prob = out.flatten() + get_layer(x, 0).flatten()
             selected = np.argmin(mine_prob)
-            selected1 = selected // dim2
-            selected2 = selected % dim2
+            sel_x = selected // height
+            sel_y = selected % height
 
-            game.open_cell(selected1, selected2)
+            game.open_cell(sel_x, sel_y)
             time.sleep(0.5)
 
             i += 1
 
-        print(f'Open cell: {i}:({selected1 + 1}, {selected2 + 1})')
+        print(f'Open cell: {i}:({sel_x + 1}, {sel_y + 1})')
         print(f'Confidence: {np.round(100 * (1 - np.amin(out[0][0] + x[0])), 2)}%')
 
         print('Game board:')

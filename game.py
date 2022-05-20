@@ -1,4 +1,4 @@
-import board_new as b
+import board as b
 
 
 class Game:
@@ -9,12 +9,12 @@ class Game:
         self.mines_count = 0
         self.game_won = False
         self.opened_cells = 0
-        arr = self.board.get_dimensions()
-        self.cells_count = arr[0] * arr[1]
+        w, h = self.board.get_dimensions()
+        self.cells_count = w * h
 
     def open_cell(self, x, y):
-        arr = self.board.get_dimensions()
-        if 0 <= x < arr[1] and 0 <= y < arr[0]:
+        w, h = self.board.get_dimensions()
+        if 0 <= x < w and 0 <= y < h:
             # print('opening cell: (' + str(x) + ', ' + str(y)+')')
 
             if not self.game_started:

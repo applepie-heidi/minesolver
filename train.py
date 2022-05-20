@@ -2,12 +2,12 @@ import imp
 
 from keras.models import load_model
 
-from brain_neww import Brain
+from brain import Brain
 
 
 def main():
     choice = 1#int(input("1. Train a new model from scratch \n2. Keep training a pre-trained model\n<1/2>? "))
-    model_name = 'expert_model-conv2d1.py'  # input("What is the name of the model/model code? ")
+    model_name = 'intermediate_model-conv2d1.py'  # input("What is the name of the model/model code? ")
     sessions = 10000  # int(input("How many learning sessions [10000]? "))
     samples = 371  # int(input("How many game moves (clicks) per session [200]? "))
     epochs = 10  # int(input("How many training epochs? "))

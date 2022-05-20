@@ -15,7 +15,7 @@ class Board:
         elif difficulty == 'intermediate':
             self.create_board(16, 16, 40)
         elif difficulty == 'expert':
-            self.create_board(16, 30, 99)
+            self.create_board(30, 16, 99)
         else:
             raise Exception
 
@@ -45,7 +45,7 @@ class Board:
         while mines_counter < self.number_of_mines:
             random_number = randint(0, self.board_height * self.board_width - 1)
             row_count = random_number // self.board_width
-            column_count = random_number % self.board_height
+            column_count = random_number % self.board_width
             # print(f'placing mine {mines_counter} at {column_count}x{row_count}')
 
             cell = self.get_cell(row_count, column_count)
@@ -174,7 +174,7 @@ class Board:
         return self.board[y][x]
 
     def get_dimensions(self):
-        return self.board_height, self.board_width
+        return self.board_width, self.board_height
 
     def get_number_of_mines(self):
         return self.number_of_mines
