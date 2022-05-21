@@ -116,7 +116,7 @@ class Brain:
     @staticmethod
     def get_truth_from_predictions(board, model_predicted_out, y, x):
         truth = model_predicted_out[0]
-        truth[y, x, 0] = board[y, x, 1]
+        truth[y, x, 0] = board.board[y, x, 1]
         return truth
 
     @staticmethod
@@ -124,14 +124,14 @@ class Brain:
         truth = model_predicted_out[0]
         for by in range(board.board_height):
             for bx in range(board.board_width):
-                truth[by, bx, 0] = board[by, bx, 1]
+                truth[by, bx, 0] = board.board[by, bx, 1]
         return truth
 
     @staticmethod
     def get_truth_from_neighbours(board, model_predicted_out, y, x):
         truth = model_predicted_out[0]
         for cy, cx in board.get_hidden_cells_near_revealed_cells():
-            truth[cy, cx, 0] = board[cy, cx, 1]
+            truth[cy, cx, 0] = board.board[cy, cx, 1]
         return truth
 
     def test(self, games_count):
@@ -167,7 +167,7 @@ class Brain:
         game = Game(self.difficulty)
         print('Beginning play')
         print('Game board:')
-        print(game.board)
+        print(game.board.board_str())
         selected1_y = randint(0, dim1_h - 1)
         selected2_x = randint(0, dim2_w - 1)
         game.open_cell(selected1_y, selected2_x)
@@ -203,7 +203,7 @@ class Brain:
             confidence = np.round(100 * (1 - np.amin(out[0][0] + x_new[0])), 2)
             print(f'Confidence: {confidence} %')
             print("Game board:")
-            print(game.board)
+            print(game.board.board_str())
 
         if game.game_won:
             print('Victory!')
