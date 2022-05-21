@@ -1,6 +1,7 @@
 from keras.models import load_model
 
 from brain import Brain
+from difficulty import Difficulty, get_by_name
 from game import Game
 
 
@@ -29,15 +30,20 @@ def play_as_a_human():
 
 
 def play_as_computer():
-    model_name = input("What is the name of the model/model code? ")
+    model_name = input('What is the name of the model? ')
+    split = model_name.split('_')
+    difficulty = split[1]
+    truth_source = split[3]
 
-    split = model_name.split("_")
-    difficulty = split[0]
-    name = split[1]
+    difi = get_by_name(difficulty)
+    if difi is None:
+        h, w, mines = difficulty.split('x')
+        h = h[6:]
+        difi = Difficulty(difficulty, int(h), int(w), int(mines))
 
-    model = load_model("models/" + model_name)
-
-    brain = Brain(model, difficulty, name)
+    model = load_model(f'models/{model_name}')
+    log_file = open(f'logs')
+    brain = Brain(model, difi, model_name, log_file, truth_source)
     brain.play()
 
 

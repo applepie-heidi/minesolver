@@ -21,3 +21,4 @@ def get_by_name(name):
     for d in diffs:
         if d.name == name:
             return d
+    return None

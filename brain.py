@@ -53,7 +53,8 @@ class Brain:
                     x2_new = flipped_revealed(x_new)
                     x2_data[samples_index] = x2_new
 
-                    out = self.model.predict([np.array([x_new]), np.array([x2_new])]) #TODO: why create new np arr from already np arr
+                    out = self.model.predict(
+                        [np.array([x_new]), np.array([x2_new])])  # TODO: why create new np arr from already np arr
 
                     mine_prob = out.flatten() + get_layer(x_new, 0).flatten()
                     index_not_a_mine = np.argmin(mine_prob)
@@ -139,13 +140,13 @@ class Brain:
         victories = 0
         for i in range(games_count):
             if (i % 10) == 0:
-                print(f'Playing game {i+1}...')
+                print(f'Playing game {i + 1}...')
             game = Game(self.difficulty)
             game.open_cell(randint(0, dim1_h - 1), randint(0, dim2_w - 1))
             while not game.game_over:
                 x = game.board.data
-                x2 = np.array([np.where(x[0] == 0, 1, 0)]) #TODO: use the flip func myb i guess
-                x_swapped = np.swapaxes(x, 0, 2) #TODO: huhhhh
+                x2 = np.array([np.where(x[0] == 0, 1, 0)])  # TODO: use the flip func myb i guess
+                x_swapped = np.swapaxes(x, 0, 2)  # TODO: huhhhh
                 x2_swapped = np.swapaxes(x2, 0, 2)
                 out = self.model.predict([np.array([x_swapped]), np.array([x2_swapped])])
                 ordered_probs = np.argsort(out[0][0] + x[0], axis=None)
