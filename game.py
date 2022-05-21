@@ -12,16 +12,14 @@ class Game:
         h, w = self.board.get_dimensions()
         self.cells_count = h * w
 
-    def open_cell(self, x, y):
+    def open_cell(self, y, x):
         h, w = self.board.get_dimensions()
         if 0 <= x < w and 0 <= y < h:
-            # print('opening cell: (' + str(x) + ', ' + str(y)+')')
-
             if not self.game_started:
-                self.board.fill_board(x, y)
+                self.board.fill_board(y, x)
                 self.game_started = True
 
-            opened = self.board.open_cell(x, y)
+            opened = self.board.open_cell(y, x)
             if opened == -1:
                 self.game_over = True
                 self.board.open_all_mines()

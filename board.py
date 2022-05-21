@@ -1,14 +1,18 @@
 from random import randint
 
-from cell import Cell
+import numpy as np
+
 from difficulty import Difficulty
 
 
 class Board:
     def __init__(self, difficulty: Difficulty):
-        self.board = None
+        self.board = np.zeros((difficulty.dim1_height, difficulty.dim2_width, 3))
+        self.data = np.zeros((difficulty.dim1_height, difficulty.dim2_width, 11))
         self.difficulty = difficulty
-        self.create_board()
+        for y in range(difficulty.dim1_height):
+            for x in range(difficulty.dim2_width):
+                self.data[y, x, 1] = 1
 
     @property
     def board_width(self):
@@ -22,143 +26,139 @@ class Board:
     def number_of_mines(self):
         return self.difficulty.number_of_mines
 
-    def create_board(self):
-        # print('creating board')
-        self.board = []  # np.zeroes((board_width, board_height), int)
-        for y in range(self.board_height):
-            row = [None] * self.board_width
-            self.board.append(row)
-            for x in range(self.board_width):
-                # row.append(Cell(x, y))
-                self.set_cell(x, y, Cell(x, y))
-
-    def fill_board(self, x, y):
-        # print('fill_board board')
-        self.place_mines(x, y)
+    def fill_board(self, y, x):
+        self.place_mines(y, x)
         self.place_values()
 
-    def place_mines(self, x, y):
+    def place_mines(self, y, x):
         mines_counter = 0
-        empty_cell = self.get_cell(x, y)
-        neighbours = self.get_neighbours(empty_cell)
+        neighbours = self.get_neighbours(y, x)
 
         while mines_counter < self.number_of_mines:
             random_number = randint(0, self.board_height * self.board_width - 1)
-            x_mine = random_number % self.board_width
             y_mine = random_number // self.board_width
-            # print(f'placing mine {mines_counter} at {column_count}x{row_count}')
+            x_mine = random_number % self.board_width
 
-            cell = self.get_cell(x_mine, y_mine)
-
-            if cell is not empty_cell:
+            if (y, x) != (y_mine, x_mine):
                 i = 0
                 for neighbour in neighbours:
-                    if cell is not neighbour:
+                    if (y, x) is not neighbour:
                         i += 1
                 if i == len(neighbours):
-                    if not cell.mine:
-                        cell.mine = True
+                    if not self.board[y, x, 1]:
+                        self.board[y_mine, x_mine, 1] = 1
                         mines_counter += 1
 
     def place_values(self):
         for x in range(self.board_width):
             for y in range(self.board_height):
-                cell = self.get_cell(x, y)
-                cell_neighbours = self.get_neighbours(cell)
+                cell_neighbours = self.get_neighbours(y, x)
                 cell_value = 0
-                for cell_neighbour in cell_neighbours:
-                    if cell_neighbour.mine:
+                for cell_neighbour_y, cell_neighbour_x in cell_neighbours:
+                    if self.board[cell_neighbour_y, cell_neighbour_x, 1]:  # is mine
                         cell_value += 1
 
-                cell.value = cell_value
+                self.board[y, x, 2] = cell_value
 
-    def get_neighbours(self, cell):
-        x = cell.x
-        y = cell.y
-
+    def get_neighbours(self, y, x):
         if x == 0:
             if y == 0:
-                neighbours = [self.get_cell(x, y + 1),
-                              self.get_cell(x + 1, y + 1),
-                              self.get_cell(x + 1, y)]
+                neighbours = [(y + 1, x),
+                              (y + 1, x + 1),
+                              (y, x + 1)]
             elif y == self.board_height - 1:
-                neighbours = [self.get_cell(x + 1, y),
-                              self.get_cell(x + 1, y - 1),
-                              self.get_cell(x, y - 1)]
+                neighbours = [(y, x + 1),
+                              (y - 1, x + 1),
+                              (y - 1, x)]
             else:
-                neighbours = [self.get_cell(x, y - 1),
-                              self.get_cell(x + 1, y - 1),
-                              self.get_cell(x + 1, y),
-                              self.get_cell(x + 1, y + 1),
-                              self.get_cell(x, y + 1)]
+                neighbours = [(y - 1, x),
+                              (y - 1, x + 1),
+                              (y, x + 1),
+                              (y + 1, x + 1),
+                              (y + 1, x)]
         elif x == self.board_width - 1:
             if y == 0:
-                neighbours = [self.get_cell(x - 1, y),
-                              self.get_cell(x - 1, y + 1),
-                              self.get_cell(x, y + 1)]
+                neighbours = [(y, x - 1),
+                              (y + 1, x - 1),
+                              (y + 1, x)]
             elif y == self.board_height - 1:
-                neighbours = [self.get_cell(x, y - 1),
-                              self.get_cell(x - 1, y - 1),
-                              self.get_cell(x - 1, y)]
+                neighbours = [(y - 1, x),
+                              (y - 1, x - 1),
+                              (y, x - 1)]
             else:
-                neighbours = [self.get_cell(x, y - 1),
-                              self.get_cell(x - 1, y - 1),
-                              self.get_cell(x - 1, y),
-                              self.get_cell(x - 1, y + 1),
-                              self.get_cell(x, y + 1)]
+                neighbours = [(y - 1, x),
+                              (y - 1, x - 1),
+                              (y, x - 1),
+                              (y + 1, x - 1),
+                              (y + 1, x)]
         else:
             if y == 0:
-                neighbours = [self.get_cell(x - 1, y),
-                              self.get_cell(x - 1, y + 1),
-                              self.get_cell(x, y + 1),
-                              self.get_cell(x + 1, y + 1),
-                              self.get_cell(x + 1, y)]
+                neighbours = [(y, x - 1),
+                              (y + 1, x - 1),
+                              (y + 1, x),
+                              (y + 1, x + 1),
+                              (y, x + 1)]
             elif y == self.board_height - 1:
-                neighbours = [self.get_cell(x - 1, y),
-                              self.get_cell(x - 1, y - 1),
-                              self.get_cell(x, y - 1),
-                              self.get_cell(x + 1, y - 1),
-                              self.get_cell(x + 1, y)]
+                neighbours = [(y, x - 1),
+                              (y - 1, x - 1),
+                              (y - 1, x),
+                              (y - 1, x + 1),
+                              (y, x + 1)]
             else:
-                neighbours = [self.get_cell(x - 1, y),
-                              self.get_cell(x - 1, y - 1),
-                              self.get_cell(x, y - 1),
-                              self.get_cell(x + 1, y - 1),
-                              self.get_cell(x + 1, y),
-                              self.get_cell(x + 1, y + 1),
-                              self.get_cell(x, y + 1),
-                              self.get_cell(x - 1, y + 1)]
+                neighbours = [(y, x - 1),
+                              (y - 1, x - 1),
+                              (y - 1, x),
+                              (y - 1, x + 1),
+                              (y, x + 1),
+                              (y + 1, x + 1),
+                              (y + 1, x),
+                              (y + 1, x - 1)]
 
         return neighbours
 
     def open_all_mines(self):
-        for row in self.board:
-            for cell in row:
-                if cell.mine:
-                    cell.revealed = True
+        for y in range(self.board_height):
+            for x in range(self.board_width):
+                if self.board[y, x, 1]:
+                    self.board[y, x, 0] = 1
 
-    def open_cell(self, x, y):
-        cell = self.get_cell(x, y)
+    def open_data_cell(self, y, x):
+        self.data[y, x, 0] = 1
+        value = self.board[y, x, 2]
+        self.data[y, x, 2] = 1 if value == 0 else 0
+        self.data[y, x, 3] = 1 if value == 1 else 0
+        self.data[y, x, 4] = 1 if value == 2 else 0
+        self.data[y, x, 5] = 1 if value == 3 else 0
+        self.data[y, x, 6] = 1 if value == 4 else 0
+        self.data[y, x, 7] = 1 if value == 5 else 0
+        self.data[y, x, 8] = 1 if value == 6 else 0
+        self.data[y, x, 9] = 1 if value == 7 else 0
+        self.data[y, x, 10] = 1 if value == 8 else 0
+
+    def open_cell(self, y, x):
         opened = -1
-        if not cell.mine:
+        if not self.board[y, x, 1]:
             opened = 0
-            if not cell.marked and not cell.revealed:
-                cell.revealed = True
+            if not self.board[y, x, 0]:
+                self.board[y, x, 0] = 1
+                self.open_data_cell(y, x)
                 opened += 1
-                if cell.value == 0:
-                    opened += self.open_neighbours(cell)
+                if self.board[y, x, 2] == 0:
+                    opened += self.open_neighbours(y, x)
         return opened
 
-    def open_neighbours(self, cell):
+    def open_neighbours(self, y, x):
         opened = 0
-        neighbours = self.get_neighbours(cell)
+        neighbours = self.get_neighbours(y, x)
 
-        for neighbour in neighbours:
-            if not neighbour.revealed and not neighbour.mine and not neighbour.marked:
-                neighbour.revealed = True
+        for neighbour_y, neighbour_x in neighbours:
+            if not self.board[neighbour_y, neighbour_x, 0] and not self.board[neighbour_y, neighbour_x, 1]:
+                self.board[neighbour_y, neighbour_x, 0] = 1
+                self.open_data_cell(neighbour_y, neighbour_x)
+
                 opened += 1
-                if neighbour.value == 0:
-                    opened += self.open_neighbours(neighbour)
+                if self.board[neighbour_y, neighbour_x, 2] == 0:
+                    opened += self.open_neighbours(neighbour_y, neighbour_x)
 
         return opened
 
@@ -166,26 +166,14 @@ class Board:
         result = set()
         for y in range(self.board_height):
             for x in range(self.board_width):
-                cell = self.get_cell(x, y)
-                if cell.revealed and cell.value != 0 and not cell.mine:
-                    neighbours = self.get_neighbours(cell)
+                if self.board[y, x, 0] and not self.board[y, x, 1] and self.board[y, x, 2] != 0:
+                    neighbours = self.get_neighbours(y, x)
                     hidden_neighbours = []
-                    for n in neighbours:
-                        if not n.revealed:
-                            hidden_neighbours.append(n)
-                    result.update(neighbours)
+                    for n_y, n_x in neighbours:
+                        if not self.board[n_y, n_x, 0]:
+                            hidden_neighbours.append((n_y, n_x))
+                    result.update(hidden_neighbours)
         return result
-
-    def toggle_mark(self, x, y):
-        cell = self.get_cell(x, y)
-        if not cell.revealed:
-            cell.marked = not cell.marked
-
-    def set_cell(self, x, y, cell):
-        self.board[y][x] = cell
-
-    def get_cell(self, x, y):
-        return self.board[y][x]
 
     def get_dimensions(self):
         return self.board_height, self.board_width
@@ -202,23 +190,16 @@ class Board:
 
         for row in self.board:
             for c in row:
-                if not c.revealed:
+                if not c[0]:
                     result += 'X'
-                elif c.mine:
+                elif c[1]:
                     result += '*'
                 else:
-                    result += str(c.value)
+                    result += str(c[2])
             result += '\n'
 
         return result
 
 
 if __name__ == '__main__':
-    b = Board("beginner")
-    print(b)
-
-    b.fill_board(1, 1)
-    print(b.board_str())
-    print('done?')
-    c33 = b.get_cell(3, 3)
-    print(f'c33 = {c33}')
+    pass
