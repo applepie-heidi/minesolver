@@ -1,5 +1,6 @@
 import datetime
 import os
+import argparse
 
 from keras.models import load_model
 
@@ -7,23 +8,50 @@ import models
 from brain import Brain
 from difficulty import Difficulty, get_by_name
 
+DEFAULT_SAMPLES = {
+    'beginner': 250,
+    'intermediate': 1000,
+    'expert': 2000,
+}
+
+def argggs():
+    parser = argparse.ArgumentParser(description='minesolver trainer')
+    parser.add_argument(
+        '--difficulty', default='beginner', metavar='difficulty',
+        help='one of: beginner, intermediate, expert, HxWxM (where H=height, W=width, M=mines)')
+    parser.add_argument(
+        '--truth', default='predictions', 
+        choices=['predictions', 'neighbours', 'board'],
+        help='one of: predictions, neighbours, board')
+    parser.add_argument(
+        '--samples', type=int,
+        help='number of game moves for single session')
+    args = parser.parse_args()
+    return args
+
 
 def main():
-    difficulty = 'beginner'
-    name = 'conv2d_relu_sigmoid_binarycrosse_adam1'
-    truth_source = 'neighbours'  # predictions, board, neighbours
-    sessions = 100_000  # int(input('How many learning sessions [10000]? '))
-    samples = 250  # int(input('How many game moves (clicks) per session [200]? '))
-    epochs = 10  # int(input('How many training epochs? '))
 
-    if difficulty != 'custom':
+    args = argggs()
+
+    name = 'conv2d_relu_sigmoid_binarycrosse_adam1'
+    difficulty = args.difficulty  # beginner, intermediate, expert, HxWxM
+    truth_source = args.truth  # predictions, neighbours, board
+    sessions = 100_000
+    samples = args.samples
+    epochs = 10
+
+    if not samples:
+        samples = DEFAULT_SAMPLES.get(args.difficulty)
+        if not samples:
+            print("you must specify number of samples")
+            return
+
+    if difficulty in ('beginner', 'intermediate', 'expert'):
         difi = get_by_name(difficulty)
         model_name = '_'.join([difficulty, name, truth_source])
     else:
-        h = 7
-        w = 9
-        mines = 10
-        difficulty = f'{difficulty}{h}x{w}x{mines}'
+        h, w, mines = [int(x) for x in difficulty.split('x')]
         difi = Difficulty(difficulty, dim1_height=h, dim2_width=w, number_of_mines=mines)
         model_name = '_'.join([difficulty, name, truth_source])
 

@@ -13,7 +13,6 @@ def main():
     difi = get_by_name(difficulty)
     if difi is None:
         h, w, mines = difficulty.split('x')
-        h = h[6:]
         difi = Difficulty(difficulty, int(h), int(w), int(mines))
 
     model = load_model(f'models/{model_name}')

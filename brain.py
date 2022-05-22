@@ -46,7 +46,7 @@ class Brain:
                 game = Game(self.difficulty)
                 game.open_cell(randint(0, dim1_h - 1), randint(0, dim2_w - 1))
                 game_clicks = 0
-                while not game.game_over and samples_index != samples:
+                while not game.game_over and samples_index < samples:
                     x_new = game.board.data
                     x_data[samples_index] = x_new
                     # flip
@@ -56,11 +56,29 @@ class Brain:
                     out = self.model.predict(
                         [np.array([x_new]), np.array([x2_new])])
 
-                    mine_prob = out.flatten() + get_layer(x_new, 0).flatten()
+                    mine_prob = out.flatten() + get_layer(game.board.board, 0).flatten()
                     index_not_a_mine = np.argmin(mine_prob)
                     selected1_y = index_not_a_mine // dim2_w
                     selected2_x = index_not_a_mine % dim2_w
-                    game.open_cell(selected1_y, selected2_x)
+
+                    try:
+                        game.open_cell(selected1_y, selected2_x)
+                    except Exception:
+                        print('!!!!!!!!!!!!!!!!!!!!!!!!!')
+                        print(f'{selected1_y},{selected2_x}')
+                        print(f'{game.board.board_str()}')
+                        print(f'index_not_a_mine: {index_not_a_mine}')
+                        revealed_count = np.count_nonzero(game.board.board[:, :, 0] == 1)
+                        mine_count = np.count_nonzero(game.board.board[:, :, 1] == 1)
+                        out_count = np.count_nonzero(out.flatten() == 1)
+                        print(f'revealed_count: {revealed_count}')
+                        print(f'mine_count: {mine_count}')
+                        print(f'out_count: {out_count}')
+                        print(f'out: {np.reshape(out.flatten(), (16, 16))}')
+                        print(f'lay0:{np.reshape(get_layer(x_new, 0).flatten(), (16, 16))}')
+                        print(f'mine_prob: {mine_prob}')
+                        print('!!!!!!!!!!!!!!!!!!!!!!!!!')
+                        raise
 
                     truth = self.truth_func(game.board, out, selected1_y, selected2_x)
                     y_data[samples_index] = truth

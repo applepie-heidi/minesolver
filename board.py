@@ -8,7 +8,7 @@ from difficulty import Difficulty
 class Board:
     def __init__(self, difficulty: Difficulty):
         # Board layers:
-        #   0) revealed: 1=yes, 0=no
+        #   0) revealed: 2=yes, 0=no
         #   1) mine: 1=has mine, 0=no mine
         #   2) hint: represents the number of mines in neighbouring cells
         self.board = np.zeros((difficulty.dim1_height, difficulty.dim2_width, 3), dtype=int)
@@ -39,7 +39,7 @@ class Board:
         return self.difficulty.number_of_mines
 
     def reveal(self, y, x):
-        self.board[y, x, 0] = 1
+        self.board[y, x, 0] = 2
 
     def is_revealed(self, y, x):
         return self.board[y, x, 0]
@@ -74,10 +74,9 @@ class Board:
                 for neighbour in neighbours:
                     if (y, x) != neighbour:
                         i += 1
-                if i == len(neighbours):
-                    if not self.is_mine(y, x):
-                        self.set_mine(y_mine, x_mine)
-                        mines_counter += 1
+                if i == len(neighbours) and not self.is_mine(y_mine, x_mine):
+                    self.set_mine(y_mine, x_mine)
+                    mines_counter += 1
 
     def place_hints(self):
         for x in range(self.board_width):
@@ -167,6 +166,9 @@ class Board:
 
     def open_cell(self, y, x):
         opened = -1
+        if self.is_revealed(y, x):
+            raise Exception(f"Trying to reveal revealed cell ({y},{x})")
+
         if not self.is_mine(y, x):
             opened = 0
             if not self.is_revealed(y, x):
