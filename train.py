@@ -34,7 +34,7 @@ def main():
 
     args = argggs()
 
-    name = 'conv2d_relu_sigmoid_binarycrosse_adam1'
+    name = 'conv2d_maxpooling_dense_relu_softmax_binarycrosse_adam1'
     difficulty = args.difficulty  # beginner, intermediate, expert, HxWxM
     truth_source = args.truth  # predictions, neighbours, board
     sessions = 100_000

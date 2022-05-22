@@ -8,3 +8,4 @@ venv/
 __pycache__
 pom.xml
 .idea/
+old_models/
