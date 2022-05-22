@@ -1,7 +1,7 @@
 from keras.models import Model
 from keras.layers import Input
-from keras.layers.convolutional import Conv2D
-from keras.layers.merge import Multiply
+from keras.layers import Conv2D
+from keras.layers import Multiply
 
 from difficulty import Difficulty
 
