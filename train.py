@@ -35,7 +35,7 @@ def main():
             log_file = open(f'logs/{model_name}', 'a+')
             make_model = getattr(models, name)
             model = make_model(difi)
-            log_file.write(f'DIFFICULLTY: {difficulty}\n')
+            log_file.write(f'DIFFICULTY: {difficulty}\n')
             log_file.write(f'NAME: {name}\n')
             log_file.write(f'TRUTH ALGORITHM: {truth_source}\n')
             log_file.write(f'SESSIONS: {sessions}\n')
@@ -52,9 +52,9 @@ def main():
             print('Which one?')
             files = os.listdir('models/')
             filtered_files = []
-            i = 1
+            i = 0
             for f in files:
-                if f.startswith(model_name):
+                if f.endswith(model_name):
                     filtered_files.append(f)
                     print(f'Choice {i}: {f}')
                     i += 1

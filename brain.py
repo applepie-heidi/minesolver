@@ -54,7 +54,7 @@ class Brain:
                     x2_data[samples_index] = x2_new
 
                     out = self.model.predict(
-                        [np.array([x_new]), np.array([x2_new])])  # TODO: why create new np arr from already np arr
+                        [np.array([x_new]), np.array([x2_new])])
 
                     mine_prob = out.flatten() + get_layer(x_new, 0).flatten()
                     index_not_a_mine = np.argmin(mine_prob)
@@ -111,12 +111,12 @@ class Brain:
             self.log_file.flush()
 
             if (i + 1) % 10 == 0:
-                self.model.save('models/' + self.difficulty.name + '_' + self.name)
+                self.model.save(f'models/{self.name}')
 
     @staticmethod
     def get_truth_from_predictions(board, model_predicted_out, y, x):
         truth = model_predicted_out[0]
-        truth[y, x, 0] = board.board[y, x, 1]
+        truth[y, x, 0] = board.is_mine(y, x)
         return truth
 
     @staticmethod
@@ -124,14 +124,14 @@ class Brain:
         truth = model_predicted_out[0]
         for by in range(board.board_height):
             for bx in range(board.board_width):
-                truth[by, bx, 0] = board.board[by, bx, 1]
+                truth[by, bx, 0] = board.is_mine(by, bx)
         return truth
 
     @staticmethod
     def get_truth_from_neighbours(board, model_predicted_out, y, x):
         truth = model_predicted_out[0]
         for cy, cx in board.get_hidden_cells_near_revealed_cells():
-            truth[cy, cx, 0] = board.board[cy, cx, 1]
+            truth[cy, cx, 0] = board.is_mine(cy, cx)
         return truth
 
     def test(self, games_count):
@@ -145,10 +145,8 @@ class Brain:
             game.open_cell(randint(0, dim1_h - 1), randint(0, dim2_w - 1))
             while not game.game_over:
                 x = game.board.data
-                x2 = np.array([np.where(x[0] == 0, 1, 0)])  # TODO: use the flip func myb i guess
-                x_swapped = np.swapaxes(x, 0, 2)  # TODO: huhhhh
-                x2_swapped = np.swapaxes(x2, 0, 2)
-                out = self.model.predict([np.array([x_swapped]), np.array([x2_swapped])])
+                x2 = flipped_revealed(x)
+                out = self.model.predict([np.array([x]), np.array([x2])])
                 ordered_probs = np.argsort(out[0][0] + x[0], axis=None)
                 selected = ordered_probs[0]
                 selected1_y = selected // dim2_w
@@ -175,18 +173,16 @@ class Brain:
 
         i = 0
         while not game.game_over:
-            x_new = game.board.data
-            x2_new = np.array([np.where(x_new[0] == 0, 1, 0)])
-            x_swapped = np.swapaxes(x_new, 0, 2)
-            x2_swapped = np.swapaxes(x2_new, 0, 2)
-            out = self.model.predict([np.array([x_swapped]), np.array([x2_swapped])])
+            x = game.board.data
+            x2 = flipped_revealed(x)
+            out = self.model.predict([np.array([x]), np.array([x2])])
 
             print('out:')
             print(out)
             print('-----')
-            print(x_new[0])
+            print(x[0])
 
-            ordered_probs = np.argsort(out[0][0] + x_new[0], axis=None)
+            ordered_probs = np.argsort(out[0][0] + x[0], axis=None)
             print('ordered probs')
             print(ordered_probs)
 
@@ -200,7 +196,7 @@ class Brain:
             time.sleep(0.5)
             i += 1
             print(f'Selection {i}: ({selected1_y + 1}, {selected2_x + 1})')
-            confidence = np.round(100 * (1 - np.amin(out[0][0] + x_new[0])), 2)
+            confidence = np.round(100 * (1 - np.amin(out[0][0] + x[0])), 2)
             print(f'Confidence: {confidence} %')
             print("Game board:")
             print(game.board.board_str())
