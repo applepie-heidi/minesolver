@@ -4,7 +4,9 @@ from random import randint
 import numpy as np
 from tensorflow.keras.callbacks import TensorBoard
 
+from board import Board
 from game import Game
+from models import ModelAdapter
 
 
 def flipped_revealed(np_board):
@@ -16,19 +18,41 @@ def get_layer(np_board, lay):
     return np_board[:, :, lay]
 
 
+def conv_board(samples, samples_index, fit_data, board: Board):
+    if fit_data is None:
+        x_data = np.zeros((samples, board.difficulty.dim1_height, board.difficulty.dim2_width, 11))
+        x2_data = np.zeros((samples, board.difficulty.dim1_height, board.difficulty.dim2_width, 1))
+        fit_data = [x_data, x2_data]
+    x_data = fit_data[0]
+    x2_data = fit_data[1]
+
+    x_new = board.data
+    x_data[samples_index] = x_new
+    # flip
+
+    x2_new = flipped_revealed(x_new)
+    x2_data[samples_index] = x2_new
+    predict_input = [np.array([x_new]), np.array([x2_new])]
+    return fit_data, predict_input
+
+    # [x_data, x2_data]
+
+
 class Brain:
-    def __init__(self, model, difficulty, name, log_file, truth_source='predictions'):
+    def __init__(self, model, difficulty, name, log_file, truth_source, board_adapter: ModelAdapter):
         self.model = model
         self.difficulty = difficulty
         self.name = name
         self.truth_func = getattr(self, 'get_truth_from_' + truth_source, self.get_truth_from_predictions)
         self.log_file = log_file
+        self.model_adapter = board_adapter
 
     def learn(self, samples, sessions, epochs):
         dim1_h, dim2_w = self.difficulty.dim1_height, self.difficulty.dim2_width
-        x_data = np.zeros((samples, dim1_h, dim2_w, 11))
-        x2_data = np.zeros((samples, dim1_h, dim2_w, 1))
-        y_data = np.zeros((samples, dim1_h, dim2_w, 1))
+        # x_data = np.zeros((samples, dim1_h, dim2_w, 11))
+        # x2_data = np.zeros((samples, dim1_h, dim2_w, 1))
+        # y_data = np.zeros((samples, dim1_h, dim2_w, 1))
+        self.model_adapter.adapt(self.model, self.difficulty, samples)
 
         tensorboard = TensorBoard(log_dir=f'tensor_logs/{self.name}')
 
@@ -47,17 +71,23 @@ class Brain:
                 game.open_cell(randint(0, dim1_h - 1), randint(0, dim2_w - 1))
                 game_clicks = 0
                 while not game.game_over and samples_index < samples:
-                    x_new = game.board.data
-                    x_data[samples_index] = x_new
-                    # flip
-                    x2_new = flipped_revealed(x_new)
-                    x2_data[samples_index] = x2_new
 
-                    out = self.model.predict(
-                        [np.array([x_new]), np.array([x2_new])])
+                    # predict_input = self.board_adapter.get_predict_input(game.board, samples_index)
+                    # convo_func
+                    ## x_new = game.board.data
+                    ## x_data[samples_index] = x_new
+                    ## # flip
+                    ## x2_new = flipped_revealed(x_new)
+                    ## x2_data[samples_index] = x2_new
+                    ## return [np.array([x_new]), np.array([x2_new])]
 
-                    mine_prob = out.flatten() + get_layer(game.board.board, 0).flatten()
-                    index_not_a_mine = np.argmin(mine_prob)
+                    # out = self.model.predict(predict_input)
+                    # [np.array([x_new]), np.array([x2_new])])
+
+                    # mine_prob = out.flatten() + get_layer(game.board.board, 0).flatten()
+                    # index_not_a_mine = np.argmin(mine_prob)
+
+                    out, index_not_a_mine = self.model_adapter.predict(game.board, samples_index)
                     selected1_y = index_not_a_mine // dim2_w
                     selected2_x = index_not_a_mine % dim2_w
 
@@ -75,13 +105,13 @@ class Brain:
                         print(f'mine_count: {mine_count}')
                         print(f'out_count: {out_count}')
                         print(f'out: {np.reshape(out.flatten(), (16, 16))}')
-                        print(f'lay0:{np.reshape(get_layer(x_new, 0).flatten(), (16, 16))}')
-                        print(f'mine_prob: {mine_prob}')
+                        # print(f'lay0:{np.reshape(get_layer(x_new, 0).flatten(), (16, 16))}')
+                        # print(f'mine_prob: {mine_prob}')
                         print('!!!!!!!!!!!!!!!!!!!!!!!!!')
                         raise
 
                     truth = self.truth_func(game.board, out, selected1_y, selected2_x)
-                    y_data[samples_index] = truth
+                    self.model_adapter.y_data[samples_index] = truth
 
                     game_clicks += 1
                     samples_index += 1
@@ -96,7 +126,8 @@ class Brain:
                     victories += 1
                     total_victories += 1
 
-            history = self.model.fit([x_data, x2_data], y_data, batch_size=32,
+            fit_data = self.model_adapter.get_fit_data()
+            history = self.model.fit(fit_data, self.model_adapter.y_data, batch_size=32,
                                      epochs=epochs, validation_split=0.3,
                                      callbacks=[tensorboard])
             loss = history.history['loss']
@@ -134,8 +165,12 @@ class Brain:
     @staticmethod
     def get_truth_from_predictions(board, model_predicted_out, y, x):
         truth = model_predicted_out[0]
-        truth[y, x, 0] = board.is_mine(y, x)
-        return truth
+        if len(truth.shape) == 3:
+            truth[y, x, 0] = board.is_mine(y, x)
+            return truth
+        elif len(truth.shape) == 1:
+            truth[y * board.board_width + x] = board.is_mine(y, x)
+            return truth
 
     @staticmethod
     def get_truth_from_board(board, model_predicted_out, y, x):

@@ -34,7 +34,8 @@ def main():
 
     args = argggs()
 
-    name = 'conv2d_maxpooling_dense_relu_softmax_binarycrosse_adam1'
+    name = 'dense_relu_sigmoid_binarycrosse_adam3'
+    #name = 'conv2d_relu_sigmoid_binarycrosse_adam1'
     difficulty = args.difficulty  # beginner, intermediate, expert, HxWxM
     truth_source = args.truth  # predictions, neighbours, board
     sessions = 100_000
@@ -55,14 +56,15 @@ def main():
         difi = Difficulty(difficulty, dim1_height=h, dim2_width=w, number_of_mines=mines)
         model_name = '_'.join([difficulty, name, truth_source])
 
+    make_model = getattr(models, name)
+    model, adapter = make_model(difi)
+
     while True:
         choice = int(input('1. Train a new model from scratch \n2. Keep training a pre-trained model\n<1/2>? '))
         if choice == 1:
             now = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
             model_name = now + '_' + model_name
             log_file = open(f'logs/{model_name}', 'a+')
-            make_model = getattr(models, name)
-            model = make_model(difi)
             log_file.write(f'DIFFICULTY: {difficulty}\n')
             log_file.write(f'NAME: {name}\n')
             log_file.write(f'TRUTH ALGORITHM: {truth_source}\n')
@@ -96,9 +98,10 @@ def main():
                     break
                 except IndexError:
                     pass
+
             break
 
-    brain = Brain(model, difi, model_name, log_file, truth_source)
+    brain = Brain(model, difi, model_name, log_file, truth_source, adapter)
     brain.learn(samples, sessions, epochs)
     print('finished')
 
