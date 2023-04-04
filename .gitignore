@@ -11,4 +11,5 @@ pom.xml
 old_models/
 tmp/
 tensor_logs/
+tensor_logs/beginner_conv2d_relu_sigmoid_binarycrosse_adam1_predictions
 graphs/
