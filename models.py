@@ -103,6 +103,7 @@ def dense_relu_sigmoid_binarycrosse_adam2(difficulty: Difficulty):
 
     return model, ModelDenseAdapter()
 
+
 def dense_relu_sigmoid_binarycrosse_adam3(difficulty: Difficulty):
     n = difficulty.dim1_height * difficulty.dim2_width
 
@@ -195,8 +196,9 @@ class ModelDenseAdapter(ModelAdapter):
         hint_layer = get_layer(board.board, 2)
 
         x_new = hint_layer.copy()
-        x_new[revealed_layer == 0] = -1
+        x_new[revealed_layer == 0] = -8
         x_new = x_new.flatten()
+        x_new = (x_new + 8) / 16.0
         self.x_data[sample_index] = x_new  # Save for later fit()
 
         x2_new = flipped_revealed(board.data).flatten()  # 1 -> hidden, 0 -> revealed

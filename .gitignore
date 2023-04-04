@@ -9,3 +9,6 @@ __pycache__
 pom.xml
 .idea/
 old_models/
+tmp/
+tensor_logs/
+graphs/
