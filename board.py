@@ -72,7 +72,7 @@ class Board:
             if (y, x) != (y_mine, x_mine):
                 i = 0
                 for neighbour in neighbours:
-                    if (y_mine, x_mine) != neighbour:
+                    if (y, x) != neighbour:
                         i += 1
                 if i == len(neighbours) and not self.is_mine(y_mine, x_mine):
                     self.set_mine(y_mine, x_mine)

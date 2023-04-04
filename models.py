@@ -187,8 +187,8 @@ class ModelDenseAdapter(ModelAdapter):
     def adapt(self, model, difficulty: Difficulty, samples: int):
         self.model = model
         n = difficulty.dim1_height * difficulty.dim2_width
-        self.x_data = np.zeros((samples, n))
-        self.x2_data = np.zeros((samples, n))
+        self.x_data = np.zeros((samples, n))  # TODO is `1`` needed?
+        self.x2_data = np.zeros((samples, n))  # TODO is `1`` needed?
         self.y_data = np.zeros((samples, n))
 
     def predict(self, board: Board, sample_index: int):
@@ -196,9 +196,14 @@ class ModelDenseAdapter(ModelAdapter):
         hint_layer = get_layer(board.board, 2)
 
         x_new = hint_layer.copy()
+<<<<<<< HEAD
         x_new[revealed_layer == 0] = -8
         x_new = x_new.flatten()
         x_new = (x_new + 8) / 16.0
+=======
+        x_new[revealed_layer == 0] = -1
+        x_new = x_new.flatten()  # TODO need? shape == (n,)
+>>>>>>> parent of f28c2d0... fixed board
         self.x_data[sample_index] = x_new  # Save for later fit()
 
         x2_new = flipped_revealed(board.data).flatten()  # 1 -> hidden, 0 -> revealed
